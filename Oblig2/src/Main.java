@@ -10,10 +10,17 @@ public class Main {
         //TODO: start position input
 
 
-        //Creating the board defined from user input, all spaces are free
-        Board.createBoard(size);
+        //Creating the board
+        Board board = new Board(size);
 
+        //Finding path
+        boolean solveBoard = board.solveBoard(1,3,3); //TODO: input param should be user input
 
+        //Printing board and path (if any was found)
+        System.out.println(board);
+        if (!solveBoard){
+            System.out.println("NO VIABLE PATH");
+        }
 
     }
 }

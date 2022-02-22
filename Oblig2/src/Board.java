@@ -2,27 +2,28 @@ import java.util.Random;
 
 public class Board {
 
-    int used = 0, free = 1, Board[][];
+    int used = 0, free = 1, size, Board[][];
 
 
-    public static int[][] createBoard(int size) {
-        int free = 1, Board[][];
+    //constructor for board
+    public Board(int size) {
+    //defines a fresh board of size by size and defines each space as free
+    this.size = size;
     Board = new int[size][size];
-
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++)
                     Board[x][y] = free;
         }
-        return Board;
     }
 
-    //takes starting position X and Y coordinates +  the size of the board
-    boolean solveBoard(int x, int y, int size) {
-        int movesTotal = 0;
+    //method for finding a path - input param is starting space
+    boolean solveBoard(int counter, int x, int y) {
+
         int movesToHere = 0;
 
-        //Stop criterion is having moved all the spaces, -1 cause we start at one space
-        if (movesToHere == (size * size) - 1) {
+        //Stop criterion is having moved all the spaces
+        //TODO: my understanding of what the end should be
+        if (movesToHere == size * size + 1) {
             return true;
         }
 
@@ -39,13 +40,14 @@ public class Board {
 
             //Checking if it is legal to move to new position
             if (newX >= 0 && newY < size && newX < size && Board[newX][newY] == free) {
-                //TODO: this is where I increment my movetotal?
+                Board[newX][newY] = counter;
+
                 //try to find a new way forward recursively
-                if (solveBoard(newX, newY, size)) {
+                if (solveBoard(counter +1, newX, newY)) {
                     Board[newX][newY] = used;
                     return true;
                 }
-                //TODO: correct placement of backtracking?
+
                 //Backtracking
                 Board[newX][newY] = free;
 
@@ -63,15 +65,5 @@ public class Board {
         // oppdateres slik at dette steget som ikke ledet til løsning
         // blir fjernet.
         return false;
-    }
-
-    //Show the solution for generated board
-    private void printSolution(int size) {
-        for (int x = 0; x < size; x++) {
-            for (int y = 0; y < size; y++)
-                System.out.println(Board[x][y]+ " ");
-
-            System.out.println();
-        }
     }
 }
