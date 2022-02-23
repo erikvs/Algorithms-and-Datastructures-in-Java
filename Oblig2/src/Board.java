@@ -2,7 +2,7 @@ import java.util.Random;
 
 public class Board {
 
-    int used = 0, free = 1, size, Board[][];
+    int used = 0, free = 1, size, Board[][], counter;
 
 
     //constructor for board
@@ -13,17 +13,16 @@ public class Board {
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++)
                     Board[x][y] = free;
+
         }
+      //  System.out.println(Board);
     }
 
     //method for finding a path - input param is starting space
     boolean solveBoard(int counter, int x, int y) {
 
-        int movesToHere = 0;
-
         //Stop criterion is having moved all the spaces
-        //TODO: my understanding of what the end should be
-        if (movesToHere == size * size + 1) {
+        if (counter == size * size + 1) { //TODO: understand why is this +1
             return true;
         }
 
@@ -39,8 +38,8 @@ public class Board {
             int newY = y + moveY[k];
 
             //Checking if it is legal to move to new position
-            if (newX >= 0 && newY < size && newX < size && Board[newX][newY] == free) {
-                Board[newX][newY] = counter;
+            if (newX >= 0 && newX < size && newY >=0 && newY < size && Board[newX][newY] == free) {
+                Board[newX][newY] = counter; //this increments counter and decrements when backtracked
 
                 //try to find a new way forward recursively
                 if (solveBoard(counter +1, newX, newY)) {
@@ -65,5 +64,20 @@ public class Board {
         // oppdateres slik at dette steget som ikke ledet til løsning
         // blir fjernet.
         return false;
+    }
+
+    public String toString(){
+        String result = "\n";
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+                if (Board[i][j] == free)
+                    result += "* ";
+                else
+                    result += Board[i][j] + " ";
+            result += "\n";
+        }
+
+        return result;
     }
 }
