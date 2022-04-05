@@ -1,5 +1,7 @@
 import java.io.*;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Scanner;
 
 // Hashing av tekststrenger med lineær probing
@@ -12,19 +14,20 @@ import java.util.Scanner;
 //
 public class hashLinear
 {
-    //TODO: need to add hash lenght as user input
 
     // Hashlengde
     private int hashLengde;
 
     // Hashtabell
-    private String hashTabell[];  //TODO: this is a one dimensional array
+    private String hashTabell[];
 
     // Antall elementer lagret i tabellen
     private int n;
 
     // Antall probes ved innsetting
     private int antProbes;
+
+    public boolean keepRunning;
 
     // Konstruktør
     // Sjekker ikke for fornuftig verdi av hashlengden
@@ -59,72 +62,51 @@ public class hashLinear
     int hash(String S)
     {
         int h = Math.abs(S.hashCode());
-        return h % hashLengde;            //hashlength 4 and h 40 returns 0 (element is placed at index 0), hashlength 4 and h 65 returns 1 (element is placed at index 1)
+        // Hashlength 4 and h 40 returns 0 (element is placed at index 0), hashlength 4 and h 65 returns 1 (element is placed at index 1)
+        return h % hashLengde;
     }
 
     // Innsetting av tekststreng med lineær probing
     // Avbryter med feilmelding hvis ledig plass ikke finnes
-    //
 
-    /** MY CODE STARTS HERE **/
-    //TODO: CHANGE THIS
+    /** MY CODE STARTS HERE**/
+    // Reworked the exit check and kept the parts of the supplied code that made sense to keep.
     void insert(String S)
     {
         // Beregner hashverdien
         int h = hash(S);  //determines where current element should be placed
 
+        // Print to keep track of what index the program is working towards freeing before loop starts.
+        System.out.println("Current value being hashed to index:" + h);
+
         // Lineær probing
         int neste = h;
 
-        // while index(which we get from hashing the input) of hashtable has a value
-        while (hashTabell[neste] != null)
-        {
-            // Ny probe
-            antProbes++;
+        // While the index(from hash) we want to use is not null.
+        while (hashTabell[neste] != null) {
 
-            // for each i length of hashtabell, start at the END of hashtable
-            // if i == null continue
-            // if i =! null
-            // move element one position to the right in the array
-            // if new pos is last pos >= hashLengde, set it to 0
-            // here we gotta check if 0 has an element, and if so, we gotta move that
-
-            //alternatively, if the element of the hashtable is != null
-            //make new empty hashtable, move each element one position into a new array
-            // stick the working element
-
-
-
-            //TODO: need to change this to something like, move element in that spot +1 in line
-
-
-            // Denne indeksen er opptatt, prøver neste - meaning place it at hash value +1 etc
-            neste++;
-
-            // hashTabell[neste] = hashTabell[neste+1];
-
-            //TODO: This bottom part is fine
-
-            // Wrap-around
-            if (neste >= hashLengde)
-                neste = 0;
-
-            // Hvis vi er kommet tilbake til opprinnelig hashverdi, er
-            // tabellen full og vi gir opp (her ville man normalt
-            // doblet lengden på hashtabellen og gjort en rehashing)
-            if (neste == h)
-            {
+            // Checks to see if array is full and if so exits program.
+            if (n == hashTabell.length) {
                 System.err.println("\nHashtabell full, avbryter");
                 System.exit(0);
             }
-        }
 
-        // Lagrer tekststrengen på funnet indeks - in this case the code has determined hashTabell[neste] == null -- being empty, it adds the element
+            // Ny probe - this is just a counter for how many times a sort is being performed
+            antProbes++;
+
+            // Rotates the array 1 space to the right. This also covers wraparound
+            Collections.rotate(Arrays.asList(hashTabell), 1);
+        }
+        // Loop is broken meaning array has been rotated 1 index at a time until desired index is free.
+
+        // Lagrer tekststrengen på funnet indeks
         hashTabell[neste] = S;
 
         // Øker antall elementer som er lagret
         n++;
     }
+    /** MY CODE STOPS HERE**/
+
 
     // Søking etter tekststreng med lineær probing
     // Returnerer true hvis strengen er lagret, false ellers
@@ -160,29 +142,19 @@ public class hashLinear
         return false;
     }
 
-    // Enkelt testprogram:
-    //
-    // * Hashlengde gis som input på kommandolinjen
-    //
-    // * Leser tekststrenger linje for linje fra standard input
-    //   og lagrer dem i hashtabellen
-    //
-    // * Skriver ut litt statistikk etter innsetting
-    //
-    // * Tester om søk fungerer for et par konstante verdier
-    //
 
-    /** MAIN HAS BEEN REWORKED **/
+    /** MAIN HAS BEEN REWORKED PARTS OF ORIGINAL MAIN REMAINS (the parts where comments are in Norwegian)**/
+    /** Reads the 600 words from .txt submitted with code and hashes them into an array**/
     public static void main(String[] args)
     {
         //Takes user input from console and assigns it as hashLength.
         Scanner userInput = new Scanner(System.in);
-        System.out.println("Enter hashLength: \n");
+        System.out.println("Enter length of storage array (words.txt currently contains 600 words): \n");
 
         int hashLengde = userInput.nextInt();
 
-        // Lager ny hashTabell
-        hashLinear hL = new hashLinear(hashLengde); //TODO: creates a new one-dimensional array called hL with a lenght of hashLengde
+        // Lager ny hashTabell - array hL med lengde hashLengde
+        hashLinear hL = new hashLinear(hashLengde);
 
         //words to be hashed
         File toHash = new File("words.txt");
@@ -196,7 +168,7 @@ public class hashLinear
         // Leser input og hasher alle linjer
         while(read.hasNext()){
             String word = read.nextLine();
-            hL.insert(read.nextLine());
+            hL.insert(word);
         }
 
         // Skriver ut hashlengde, antall data lest, antall kollisjoner
@@ -205,22 +177,14 @@ public class hashLinear
         System.out.println("Elementer   : " + hL.antData());
         System.out.printf( "Load factor : %5.3f\n",  hL.loadFactor());
         System.out.println("Probes      : " + hL.antProbes());
-
+        System.out.println();
+        System.out.println("RESULT:");
+        System.out.println();
         for (int i=0; i<hL.hashLengde; i++)
         {
             System.out.println("word at index " + i +
                     " : "+ hL.hashTabell[i]);
         }
-
-
-        /*// Et par enkle søk
-        String S = "Volkswagen Karmann Ghia";
-        if (hL.search(S))
-            System.out.println("\"" + S + "\"" + " finnes i hashtabellen");
-        S = "Il Tempo Gigante";
-        if (!hL.search(S))
-            System.out.println("\"" + S + "\"" + " finnes ikke i hashtabellen");
-*/
     }
 }
 
