@@ -64,8 +64,12 @@ public class hashLinear {
      * Look for English comments to see my implementation.
      * **/
     void insert(String S) {
+
         // Beregner hashverdien
         int h = hash(S);
+
+        // Print to keep track of what index the program is working towards before loop starts.
+        System.out.println("Current value being hashed to index:" + h);
 
         // Lineær probing
         int neste = h;
@@ -75,7 +79,7 @@ public class hashLinear {
         int tMove = 0;
 
         // Variable to store T in IF we need to move it from current index.
-        String T = "";
+       // String T = "";
 
         // Hashed index of string T.
         int hashT = 0;
@@ -114,6 +118,14 @@ public class hashLinear {
             // Ny probe - every time we do a probe, we move one index to the right in the array.
             antProbes++;
 
+            // Hvis vi er kommet tilbake til opprinnelig hashverdi, er
+            // tabellen full og vi gir opp (her ville man normalt
+            // doblet lengden på hashtabellen og gjort en rehashing)
+            if (n == hashTabell.length) {
+                System.err.println("\nHashtabell full, avbryter");
+                System.exit(0);
+            }
+
             // For each ++ of antProbes, we also increase the movement of the element we are currently working with.
             sMove++;
 
@@ -123,7 +135,8 @@ public class hashLinear {
             // Determine current index.
             // We are currently at where we started + how far we have moved. (sMove accounts for wraparound already)
             tIndex = hash(S) + sMove;
-            System.out.println(tIndex);
+
+            //System.out.println("Currently working with index:" + tIndex);
 
             // If statement to determine how far T has moved.
             // If staring index of T == current index of T, T has not moved
@@ -142,38 +155,33 @@ public class hashLinear {
                 tMove = (hashTabell.length - hashT) + tIndex;
             }
 
-            // If S has moved farther than T: we need to move rotate the array one space to the right until we have a free space
+            // If S has moved further than T: we need to move rotate the array one space to the right until we have a free space
             if (sMove > tMove) {
                 // Rotates the array 1 space to the right. This also covers wraparound
+                System.out.println("Rotating Array!");
                 Collections.rotate(Arrays.asList(hashTabell), 1);
             }
 
-            // If T has moved farther than S or if S and T have moved the same distance: try the next index in the array
+            // If T has moved further than S or if S and T have moved the same distance: try the next index in the array
             if (sMove <= tMove) {
+                sMove++;
                 neste++;
             }
 
-
-            // Wrap-around
+            //Wrap-around
             if (neste >= hashLengde) {
                 neste = 0;
             }
 
-            // Hvis vi er kommet tilbake til opprinnelig hashverdi, er
-            // tabellen full og vi gir opp (her ville man normalt
-            // doblet lengden på hashtabellen og gjort en rehashing)
-            if (neste == h) {
-                System.err.println("\nHashtabell full, avbryter");
-                System.exit(0);
-            }
+            // IF we get to this point in the while, S has either moved further
+            neste++;
 
-
-            // Lagrer tekststrengen på funnet indeks
-            hashTabell[neste] = S;
-
-            // Øker antall elementer som er lagret
-            n++;
         }
+        // Lagrer tekststrengen på funnet indeks
+        hashTabell[neste] = S;
+
+        // Øker antall elementer som er lagret
+        n++;
     }
 
     // Søking etter tekststreng med lineær probing
@@ -207,18 +215,6 @@ public class hashLinear {
         // Finner ikke strengen, har kommet til en probe som er null
         return false;
     }
-
-    // Enkelt testprogram:
-    //
-    // * Hashlengde gis som input på kommandolinjen
-    //
-    // * Leser tekststrenger linje for linje fra standard input
-    //   og lagrer dem i hashtabellen
-    //
-    // * Skriver ut litt statistikk etter innsetting
-    //
-    // * Tester om søk fungerer for et par konstante verdier
-    //
 
     /** MAIN HAS BEEN REWORKED PARTS OF ORIGINAL MAIN REMAINS (the parts where comments are in Norwegian)**/
     /**
