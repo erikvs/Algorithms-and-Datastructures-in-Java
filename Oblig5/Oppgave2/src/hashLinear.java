@@ -3,7 +3,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Scanner;
 
-
 // Hashing av tekststrenger med lineær probing
 // Bruker Javas innebygde hashfunksjon for strenger
 //
@@ -24,6 +23,25 @@ public class hashLinear {
 
     // Antall probes ved innsetting
     private int antProbes;
+
+    /**
+     * MY CODE STARTS HERE
+     **/
+
+    // Values used to calculate how far insert(String S) and index element, T, checked against have moved from original hashed index.
+    int sMove;
+    int tMove;
+
+    // Starting index of string S and T.
+    int hashT;
+    int hashS;
+
+    // The index we are currently working with.
+    int tIndex;
+
+    /**
+     * MY CODE ENDS HERE
+     **/
 
     // Konstruktør
     // Sjekker ikke for fornuftig verdi av hashlengden
@@ -56,66 +74,51 @@ public class hashLinear {
         return h % hashLengde;
     }
 
-
-    // Innsetting av tekststreng med lineær probing
-    // Avbryter med feilmelding hvis ledig plass ikke finnes
-    /** MY CODE STARTS HERE
+    /**
+     * MY CODE STARTS HERE
      * Method has been changed to compare inserted String S to string T at current index.
      * Look for English comments to see my implementation.
-     * **/
+     **/
+
+    // Function to determine how far T has moved.
+    int tMoveFinder() {
+        // If starting index of T < current index of T, T has moved, but not wrapped
+        if (hashT < tIndex) {
+            return tMove = tIndex - hashT;
+        }
+        // If starting index of T > current index of T, T has moved and wrapped:
+        if (hashT > tIndex) {
+            return tMove = (hashTabell.length - hashT) + tIndex;
+        }
+        // If staring index of T == current index of T, T has not moved
+        return 0;
+    }
+
+    // Function to determine how far S has moved
+    int sMoveFinder() {
+        // If starting index of S < current index of T, S has moved, but not wrapped
+        if (hashS < tIndex) {
+            return sMove = 0 + tIndex;
+        }
+        // If starting index of S > current index of T, S has moved and wrapped:
+        if (hashS > tIndex) {
+            return sMove = (hashTabell.length - hashS) + tIndex;
+        }
+        // As a base, sMove is 0
+        return 0;
+    }
+
     void insert(String S) {
 
         // Beregner hashverdien
         int h = hash(S);
 
-        // Print to keep track of what index the program is working towards before loop starts.
-        System.out.println("Current value being hashed to index:" + h);
-
         // Lineær probing
         int neste = h;
 
-        // Values used to calculate how far insert(String) and index element checked against have moved from original hashed index.
-        int sMove = 0;
-        int tMove = 0;
-
-        // Variable to store T in IF we need to move it from current index.
-       // String T = "";
-
-        // Hashed index of string T.
-        int hashT = 0;
-
-        // The index we are currently working with.
-        int tIndex = 0;
-
-        /**Robin Hood
-         *
-         * when placing an element S one of two alternatives exist:
-         * 1. element in structure at desired index, T, is moved one index to the right to free up the desired index.
-         * 2. place S in the next index (as in linear probing)
-         * Alternative 1 is chosen if S has moved further away from its original hash index than T
-         * Else, choose alternative 2
-         *
-         * When I store an element, I need to store it with a reference value that I can iterate
-         * - this could be a hashmap where key value is stored, key is string to be hashed, value is the PSL (probe sequence length) which can be increased as the key moves.
-         *
-         * Attempt
-         *
-         * insert value S, for each move count a temp variable (sMove) which is used to determine how far it has moved from original position
-         * for each T value, hash T to get the original index T was supposed to go to.
-         *
-         * if hash(T) > T index, calculate tMove by (T index) - hash(T)
-         * else (that means T index is greater than hash(T), so a wraparound has occured), calculate tMove by (table.length - hash(T))+(T index)
-         *
-         * compare S to T by comparing sMove > tMove
-         * if sMove > tMove store T in temp variable, assign S as new T, assign temp T as new S, assign tMove as sMove, iterate sMove once, Continue (meaning T (now current S) is used to check against other values and movement is stored on the original movement of T)
-         *else (when S is smaller than T) assign tMove as O and iterate sMove once, continue  (S is used to check against other values)
-         *
-         * **/
-
         // While the index(from hash) we want to use is not null.
         while (hashTabell[neste] != null) {
-
-            // Ny probe - every time we do a probe, we move one index to the right in the array.
+            // Ny probe - each time [neste] is not null, we probe for a potential move of T or check next
             antProbes++;
 
             // Hvis vi er kommet tilbake til opprinnelig hashverdi, er
@@ -126,56 +129,33 @@ public class hashLinear {
                 System.exit(0);
             }
 
-            // For each ++ of antProbes, we also increase the movement of the element we are currently working with.
-            sMove++;
-
             // Determine string T starting index.
             hashT = hash(hashTabell[neste]);
 
             // Determine current index.
-            // We are currently at where we started + how far we have moved. (sMove accounts for wraparound already)
-            tIndex = hash(S) + sMove;
+            tIndex = Arrays.asList(hashTabell).indexOf(hashTabell[neste]);
 
-            //System.out.println("Currently working with index:" + tIndex);
+            // Determine how far current T has moved
+            int tMove = tMoveFinder();
 
-            // If statement to determine how far T has moved.
-            // If staring index of T == current index of T, T has not moved
-            if (hashT == tIndex) {
-                tMove = 0;
-            }
-
-            // If starting index of T < current index of T, T has moved, but not wrapped
-            if (hashT < tIndex) {
-                tMove = tIndex - hashT;
-            }
-
-            // If starting index of T > current index of T, T has moved and wrapped:
-            // (hashTabell.length-hashT) determines movement out the lenght of the array, + (tIndex) determines movement from index 0 to starting index
-            if (hashT > tIndex) {
-                tMove = (hashTabell.length - hashT) + tIndex;
-            }
+            // sMove will be 0 the first time into the while, and is iterated when we iterate neste (move one to the right). While we are working with S, sMove increases
+            int sMove = sMoveFinder();
 
             // If S has moved further than T: we need to move rotate the array one space to the right until we have a free space
             if (sMove > tMove) {
-                // Rotates the array 1 space to the right. This also covers wraparound
-                System.out.println("Rotating Array!");
-                Collections.rotate(Arrays.asList(hashTabell), 1);
+                // Rotates the array 1 space to the right one space at a time, until we find a free space. This also covers wraparound
+                while (hashTabell[neste] != null) {
+                    Collections.rotate(Arrays.asList(hashTabell), 1);
+                }
             }
-
             // If T has moved further than S or if S and T have moved the same distance: try the next index in the array
-            if (sMove <= tMove) {
-                sMove++;
+            else {
                 neste++;
+                //Wrap-around
+                if (neste >= hashLengde) {
+                    neste = 0;
+                }
             }
-
-            //Wrap-around
-            if (neste >= hashLengde) {
-                neste = 0;
-            }
-
-            // IF we get to this point in the while, S has either moved further
-            neste++;
-
         }
         // Lagrer tekststrengen på funnet indeks
         hashTabell[neste] = S;
@@ -183,7 +163,9 @@ public class hashLinear {
         // Øker antall elementer som er lagret
         n++;
     }
-
+    /**
+     * MY CODE ENDS HERE
+     * **/
     // Søking etter tekststreng med lineær probing
     // Returnerer true hvis strengen er lagret, false ellers
     //
@@ -220,7 +202,7 @@ public class hashLinear {
     /**
      * Reads the 600 words from .txt submitted with code and hashes them into an array
      **/
-    public static void main(String[] args){
+    public static void main(String[] args) {
         //Takes user input from console and assigns it as hashLength.
         Scanner userInput = new Scanner(System.in);
         System.out.println("Enter length of storage array (words.txt currently contains 600 words): \n");
@@ -254,6 +236,7 @@ public class hashLinear {
         System.out.println();
         System.out.println("RESULT:");
         System.out.println();
+        // ALSO PRINTS THE FINAL LIST!
         for (int i = 0; i < hL.hashLengde; i++) {
             System.out.println("word at index " + i +
                     " : " + hL.hashTabell[i]);
