@@ -76,13 +76,11 @@ public class hashLinear
         // Beregner hashverdien
         int h = hash(S);  //determines where current element should be placed
 
-        // Print to keep track of what index the program is working towards freeing before loop starts.
-        System.out.println("Current value being hashed to index:" + h);
-
         // Lineær probing
         int neste = h;
 
         // While the index(from hash) we want to use is not null.
+        // When we have rotated the array one index at a time until we have found a free index, the we can exit this loop
         while (hashTabell[neste] != null) {
 
             // Checks to see if array is full and if so exits program.
@@ -97,7 +95,6 @@ public class hashLinear
             // Rotates the array 1 space to the right. This also covers wraparound
             Collections.rotate(Arrays.asList(hashTabell), 1);
         }
-        // Loop is broken meaning array has been rotated 1 index at a time until desired index is free.
 
         // Lagrer tekststrengen på funnet indeks
         hashTabell[neste] = S;
@@ -106,7 +103,6 @@ public class hashLinear
         n++;
     }
     /** MY CODE STOPS HERE**/
-
 
     // Søking etter tekststreng med lineær probing
     // Returnerer true hvis strengen er lagret, false ellers
@@ -141,7 +137,6 @@ public class hashLinear
         // Finner ikke strengen, har kommet til en probe som er null
         return false;
     }
-
 
     /** MAIN HAS BEEN REWORKED PARTS OF ORIGINAL MAIN REMAINS (the parts where comments are in Norwegian)**/
     /** Reads the 600 words from .txt submitted with code and hashes them into an array**/
